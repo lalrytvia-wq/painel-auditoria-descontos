@@ -3,204 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditoria de Descontos</title>
+    <title>Auditoria de Descontos Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-slate-50 text-slate-900">
 
     <header class="bg-gradient-to-r from-red-900 to-red-600 text-white p-6 shadow-lg">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <i data-lucide="shield-alert" class="w-8 h-8 text-white"></i>
-                <h1 class="text-2xl font-bold tracking-tight">Auditoria de Descontos</h1>
+                <i data-lucide="shield-alert" class="w-8 h-8"></i>
+                <h1 class="text-2xl font-bold">Auditoria de Descontos</h1>
             </div>
-            
             <div class="flex gap-3">
-                <button onclick="document.getElementById('fileInput').click()" class="bg-white text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all shadow-sm">
-                    <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-                    Importar CSV
-                </button>
-                <input type="file" id="fileInput" accept=".csv" class="hidden">
-                
-                <button class="bg-red-800/50 hover:bg-red-800 text-white px-4 py-2 rounded-lg font-medium transition-all">
-                    Visão Geral
-                </button>
-                <button class="bg-red-950 text-white px-4 py-2 rounded-lg font-medium shadow-inner border border-red-800">
-                    Lista Detalhada
+                <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="processarArquivo(this)">
+                <button onclick="document.getElementById('csvFile').click()" class="bg-white text-red-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-red-50 transition-all shadow-md">
+                    <i data-lucide="upload-cloud" class="w-4 h-4"></i> Carregar Relatório CSV
                 </button>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto p-6 space-y-6">
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Analisado</p>
-                        <h3 class="text-3xl font-bold text-slate-800 mt-1">15.524</h3>
-                        <p class="text-sm text-slate-500 mt-1">Transações</p>
-                    </div>
-                    <div class="p-2 bg-slate-100 rounded-lg">
-                        <i data-lucide="file-text" class="w-5 h-5 text-slate-600"></i>
-                    </div>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs font-bold text-slate-400 uppercase">Total Analisado</p>
+                <h3 id="kpi-total" class="text-3xl font-bold text-slate-800 mt-1">0</h3>
+                <p class="text-sm text-slate-500">Transações</p>
             </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-red-100 hover:shadow-md transition-shadow">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-red-400 uppercase tracking-wider">Itens com Prejuízo</p>
-                        <h3 class="text-3xl font-bold text-red-600 mt-1">13.012</h3>
-                        <p class="text-sm text-red-400 mt-1">Margem Negativa</p>
-                    </div>
-                    <div class="p-2 bg-red-50 rounded-lg">
-                        <i data-lucide="trending-down" class="w-5 h-5 text-red-600"></i>
-                    </div>
-                </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-red-100">
+                <p class="text-xs font-bold text-red-400 uppercase">Valor Descontos</p>
+                <h3 id="kpi-prejuizo" class="text-3xl font-bold text-red-600 mt-1">R$ 0</h3>
+                <p class="text-sm text-red-400">Total Concedido</p>
             </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Valor do Prejuízo</p>
-                        <h3 class="text-3xl font-bold text-slate-800 mt-1">R$ 103.585</h3>
-                        <p class="text-sm text-slate-500 mt-1">Erosão de Capital</p>
-                    </div>
-                    <div class="p-2 bg-slate-100 rounded-lg">
-                        <i data-lucide="wallet" class="w-5 h-5 text-slate-600"></i>
-                    </div>
-                </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs font-bold text-slate-400 uppercase">Desconto Médio</p>
+                <h3 id="kpi-medio" class="text-3xl font-bold text-slate-800 mt-1">0%</h3>
+                <p class="text-sm text-slate-500">Geral</p>
             </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition-shadow">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-xs font-bold text-orange-400 uppercase tracking-wider">Transações Críticas</p>
-                        <h3 class="text-3xl font-bold text-orange-600 mt-1">912</h3>
-                        <p class="text-sm text-orange-400 mt-1">Autocompra / Atacado</p>
-                    </div>
-                    <div class="p-2 bg-orange-50 rounded-lg">
-                        <i data-lucide="alert-triangle" class="w-5 h-5 text-orange-600"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                <p class="text-xs font-bold text-slate-400 uppercase">Desc. Médio</p>
-                <div class="flex items-baseline gap-2 mt-1">
-                    <h3 class="text-4xl font-bold text-slate-800">38.8%</h3>
-                    <span class="text-green-600 text-sm font-medium">Média Geral</span>
-                </div>
-            </div>
-
-            <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 relative overflow-hidden">
-                <p class="text-xs font-bold text-blue-500 uppercase z-10 relative">Maior Desconto (Geral)</p>
-                <h3 class="text-2xl font-bold text-blue-900 mt-2 z-10 relative">#8676342</h3>
-                <div class="flex justify-between items-end mt-4 z-10 relative">
-                    <span class="text-3xl font-black text-blue-600">-54% OFF</span>
-                    <div class="text-right">
-                        <p class="text-xs text-blue-400">34 - LOJA CENTRO</p>
-                        <p class="text-sm font-bold text-blue-800">Liq: R$ 3.980</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-purple-50 p-6 rounded-xl border border-purple-100 relative overflow-hidden">
-                <p class="text-xs font-bold text-purple-500 uppercase z-10 relative">Recorde (>50%)</p>
-                <h3 class="text-2xl font-bold text-purple-900 mt-2 z-10 relative">#8676342</h3>
-                <div class="flex justify-between items-end mt-4 z-10 relative">
-                    <div>
-                        <p class="text-xs text-purple-400">Bruto</p>
-                        <p class="text-sm font-bold text-purple-800 line-through">R$ 8.654</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs text-purple-400">Líquido</p>
-                        <p class="text-xl font-bold text-purple-600">R$ 3.980</p>
-                    </div>
-                </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-orange-100">
+                <p class="text-xs font-bold text-orange-400 uppercase">Alertas (>50%)</p>
+                <h3 id="kpi-alertas" class="text-3xl font-bold text-orange-600 mt-1">0</h3>
+                <p class="text-sm text-orange-400">Casos Críticos</p>
             </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
-                <h3 class="text-lg font-bold flex items-center gap-2">
-                    <i data-lucide="file-text" class="w-5 h-5 text-slate-400"></i>
-                    Transações Sinalizadas
-                </h3>
-                <div class="flex gap-2 w-full md:w-auto">
-                    <div class="relative w-full md:w-64">
-                        <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
-                        <input type="text" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500">
-                    </div>
-                    <button class="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600">
-                        <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
-                    </button>
-                </div>
+            <div class="p-6 border-b border-slate-100 font-bold flex items-center gap-2">
+                <i data-lucide="list"></i> Detalhes das Transações
             </div>
-
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
                 <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-50 text-slate-500 font-medium uppercase text-xs">
+                    <thead class="bg-slate-50 sticky top-0 text-slate-500 text-xs uppercase">
                         <tr>
-                            <th class="px-6 py-3">ID</th>
                             <th class="px-6 py-3">Data</th>
                             <th class="px-6 py-3">Loja</th>
                             <th class="px-6 py-3">Vendedor</th>
-                            <th class="px-6 py-3">Cliente</th>
-                            <th class="px-6 py-3">Item</th>
+                            <th class="px-6 py-3">Produto</th>
+                            <th class="px-6 py-3 text-right">Preço Bruto</th>
+                            <th class="px-6 py-3 text-right">Líquido</th>
                             <th class="px-6 py-3 text-right">% Desc.</th>
-                            <th class="px-6 py-3 text-center">Status</th>
-                            <th class="px-6 py-3 text-center">Ver</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-slate-600">#8913554</td>
-                            <td class="px-6 py-4 text-slate-500">20/12/2025</td>
-                            <td class="px-6 py-4 text-slate-500">35 - LOJA BACABAL</td>
-                            <td class="px-6 py-4 font-medium text-slate-700">MARTA MOURA</td>
-                            <td class="px-6 py-4 text-slate-500">MARIA VANDER...</td>
-                            <td class="px-6 py-4 text-slate-500 truncate max-w-[150px]">KIT COM 7 CALCINHAS LARG...</td>
-                            <td class="px-6 py-4 text-right font-bold text-red-600">61.00%</td>
-                            <td class="px-6 py-4 text-center">
-                                <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">PREJUÍZO</span>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <button class="text-slate-400 hover:text-red-600"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                            </td>
-                        </tr>
-                         <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-slate-600">#8644720</td>
-                            <td class="px-6 py-4 text-slate-500">23/09/2025</td>
-                            <td class="px-6 py-4 text-slate-500">35 - LOJA BACABAL</td>
-                            <td class="px-6 py-4 font-medium text-slate-700">MARTA MOURA</td>
-                            <td class="px-6 py-4 text-slate-500">JOSENILDE BAR...</td>
-                            <td class="px-6 py-4 text-slate-500 truncate max-w-[150px]">CALCINHA LINGERIE BIQUINI...</td>
-                            <td class="px-6 py-4 text-right font-bold text-red-600">36.54%</td>
-                            <td class="px-6 py-4 text-center">
-                                <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">PREJUÍZO</span>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <button class="text-slate-400 hover:text-red-600"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                            </td>
-                        </tr>
+                    <tbody id="tabela-corpo" class="divide-y divide-slate-100">
+                        <tr><td colspan="7" class="px-6 py-10 text-center text-slate-400">Carregue um arquivo para visualizar os dados</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </main>
 
     <script>
+        function processarArquivo(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    const dados = results.data;
+                    atualizarDashboard(dados);
+                }
+            });
+        }
+
+        function formatarMoeda(valor) {
+            return parseFloat(valor || 0).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+        }
+
+        function atualizarDashboard(dados) {
+            let totalDescontoVal = 0;
+            let totalItens = dados.length;
+            let somaPercentual = 0;
+            let alertas = 0;
+            let htmlTabela = "";
+
+            dados.forEach(item => {
+                // Mapeando suas colunas conforme o print
+                const bruto = parseFloat(item["Vl. Unitbru"]?.replace(',', '.') || 0);
+                const liq = parseFloat(item["Vl. Totallic"]?.replace(',', '.') || 0);
+                const descVal = parseFloat(item["Vl. Descor"]?.replace(',', '.') || 0);
+                
+                // Cálculo de percentual
+                const percentual = bruto > 0 ? (descVal / bruto) * 100 : 0;
+                
+                totalDescontoVal += descVal;
+                somaPercentual += percentual;
+                if (percentual > 50) alertas++;
+
+                htmlTabela += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">${item["Dt. Transa"] || '-'}</td>
+                        <td class="px-6 py-4">${item["Ds. Loja"] || '-'}</td>
+                        <td class="px-6 py-4">${item["Ds. Vende"] || '-'}</td>
+                        <td class="px-6 py-4">${item["Ds. Produ"] || '-'}</td>
+                        <td class="px-6 py-4 text-right">${formatarMoeda(bruto)}</td>
+                        <td class="px-6 py-4 text-right">${formatarMoeda(liq)}</td>
+                        <td class="px-6 py-4 text-right font-bold ${percentual > 40 ? 'text-red-600' : 'text-slate-700'}">${percentual.toFixed(2)}%</td>
+                    </tr>
+                `;
+            });
+
+            // Atualiza KPIs
+            document.getElementById('kpi-total').innerText = totalItens;
+            document.getElementById('kpi-prejuizo').innerText = formatarMoeda(totalDescontoVal);
+            document.getElementById('kpi-medio').innerText = (somaPercentual / totalItens).toFixed(1) + "%";
+            document.getElementById('kpi-alertas').innerText = alertas;
+            document.getElementById('tabela-corpo').innerHTML = htmlTabela;
+
+            lucide.createIcons();
+        }
+
         lucide.createIcons();
     </script>
 </body>
