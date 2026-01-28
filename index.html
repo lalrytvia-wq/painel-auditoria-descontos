@@ -3,89 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise Completa de Descontos | Auditoria Interna</title>
+    <title>Análise Completa de Descontos | Diamantes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .header-bg { background: linear-gradient(90deg, #450a0a 0%, #991b1b 100%); }
-        .card-shadow { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        .btn-active { background-color: #7f1d1d; border: 1px solid #991b1b; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
-        .table-res { max-height: 550px; overflow-y: auto; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .header-gradient { background: linear-gradient(90deg, #450a0a 0%, #991b1b 100%); }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .table-container { max-height: 600px; overflow-y: auto; border-radius: 0 0 1.5rem 1.5rem; }
+        .btn-nav { transition: all 0.2s; font-weight: 600; font-size: 0.875rem; padding: 0.625rem 1.25rem; border-radius: 0.75rem; }
+        .btn-active { background-color: #7f1d1d; color: white; border: 1px solid #b91c1c; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        .btn-inactive { color: rgba(255,255,255,0.7); }
+        .btn-inactive:hover { color: white; background-color: rgba(255,255,255,0.1); }
     </style>
 </head>
-<body class="text-slate-900">
+<body>
 
-    <header class="header-bg text-white py-10 px-12 shadow-2xl border-b-4 border-red-900">
-        <div class="max-w-[1500px] mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
+    <header class="header-gradient text-white py-10 px-12 shadow-2xl">
+        <div class="max-w-[1600px] mx-auto flex flex-col xl:flex-row justify-between items-center gap-8">
             <div class="flex items-center gap-5">
-                <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
-                    <i data-lucide="shield-check" class="w-12 h-12 text-white"></i>
+                <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/20">
+                    <i data-lucide="shield-alert" class="w-12 h-12 text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-4xl font-black uppercase tracking-tighter leading-none">Análise Completa</h1>
-                    <p class="text-red-200 text-[11px] font-bold tracking-[0.4em] uppercase mt-2 opacity-80">Auditoria Interna de Descontos</p>
+                    <h1 class="text-4xl font-[900] uppercase tracking-tighter leading-none">Análise Completa</h1>
+                    <p class="text-red-200 text-xs font-bold tracking-[0.4em] uppercase mt-2 opacity-80">Auditoria de Descontos & Compliance</p>
                 </div>
             </div>
             
             <div class="flex flex-wrap items-center gap-6">
-                <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="processarArquivo(this)">
-                <button onclick="document.getElementById('csvFile').click()" class="bg-white text-red-900 hover:bg-red-50 px-10 py-4 rounded-2xl font-black text-sm flex items-center gap-3 transition-all shadow-2xl active:scale-95 border-b-4 border-slate-200">
-                    <i data-lucide="upload" class="w-5 h-5"></i> IMPORTAR CSV
-                </button>
-                
-                <div class="flex bg-black/20 p-2 rounded-2xl border border-white/10">
-                    <button class="px-8 py-3 rounded-xl font-bold text-xs uppercase opacity-50 hover:opacity-100 transition-all">Visão Geral</button>
-                    <button class="btn-active px-8 py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Lista Detalhada</button>
+                <div class="flex bg-black/20 p-1.5 rounded-2xl border border-white/10">
+                    <button class="btn-nav btn-inactive">Visão Geral</button>
+                    <button class="btn-nav btn-active">Lista Detalhada</button>
                 </div>
+
+                <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="processarArquivo(this)">
+                <button onclick="document.getElementById('csvFile').click()" class="bg-white text-red-900 hover:bg-red-50 px-10 py-3.5 rounded-2xl font-[900] text-sm flex items-center gap-3 transition-all shadow-xl active:scale-95">
+                    <i data-lucide="upload-cloud" class="w-5 h-5"></i> IMPORTAR CSV
+                </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-[1500px] mx-auto p-12 space-y-12">
+    <main class="max-w-[1600px] mx-auto p-12 space-y-12">
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div class="bg-white p-8 rounded-[2rem] border border-slate-200 card-shadow flex justify-between items-center">
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-200 card-shadow flex justify-between items-start">
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Analisado</p>
-                    <h3 id="kpi-total" class="text-5xl font-black text-slate-800 mt-3 tracking-tighter">0</h3>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Analisado</p>
+                    <h3 id="kpi-total" class="text-4xl font-black text-slate-800 mt-3 tracking-tighter">0</h3>
+                    <p class="text-xs text-slate-500 mt-2 font-medium italic">Transações</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl text-slate-300"><i data-lucide="database" class="w-8 h-8"></i></div>
+                <div class="p-4 bg-slate-100 rounded-2xl text-slate-400"><i data-lucide="file-text" class="w-7 h-7"></i></div>
             </div>
 
-            <div class="bg-white p-8 rounded-[2rem] border border-red-100 card-shadow flex justify-between items-center border-l-[12px] border-l-red-700">
+            <div class="bg-white p-8 rounded-[2rem] border border-red-100 card-shadow flex justify-between items-start">
                 <div>
-                    <p class="text-[10px] font-black text-red-600 uppercase tracking-[0.2em]">Valor Descontos</p>
-                    <h3 id="kpi-prejuizo" class="text-5xl font-black text-red-700 mt-3 tracking-tighter">R$ 0</h3>
+                    <p class="text-[10px] font-black text-red-400 uppercase tracking-widest">Itens com Prejuízo</p>
+                    <h3 id="kpi-prejuizo-count" class="text-4xl font-black text-red-600 mt-3 tracking-tighter">0</h3>
+                    <p class="text-xs text-red-400 mt-2 font-medium italic">Margem Negativa</p>
                 </div>
-                <div class="p-4 bg-red-50 rounded-2xl text-red-200"><i data-lucide="trending-down" class="w-8 h-8"></i></div>
+                <div class="p-4 bg-red-50 rounded-2xl text-red-600"><i data-lucide="trending-down" class="w-7 h-7"></i></div>
             </div>
 
-            <div class="bg-white p-8 rounded-[2rem] border border-slate-200 card-shadow flex justify-between items-center">
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-200 card-shadow flex justify-between items-start">
                 <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Média Geral</p>
-                    <h3 id="kpi-medio" class="text-5xl font-black text-slate-800 mt-3 tracking-tighter">0%</h3>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Valor do Prejuízo</p>
+                    <h3 id="kpi-prejuizo-valor" class="text-4xl font-black text-slate-800 mt-3 tracking-tighter">R$ 0</h3>
+                    <p class="text-xs text-slate-500 mt-2 font-medium italic">Erosão de Capital</p>
                 </div>
-                <div class="p-4 bg-slate-50 rounded-2xl text-slate-300"><i data-lucide="percent" class="w-8 h-8"></i></div>
+                <div class="p-4 bg-slate-100 rounded-2xl text-slate-400"><i data-lucide="wallet" class="w-7 h-7"></i></div>
             </div>
 
-            <div class="bg-white p-8 rounded-[2rem] border border-orange-100 card-shadow flex justify-between items-center border-l-[12px] border-l-orange-500">
+            <div class="bg-white p-8 rounded-[2rem] border border-orange-100 card-shadow flex justify-between items-start">
                 <div>
-                    <p class="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em]">Críticos (>50%)</p>
-                    <h3 id="kpi-alertas" class="text-5xl font-black text-orange-600 mt-3 tracking-tighter">0</h3>
+                    <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest">Transações Críticas</p>
+                    <h3 id="kpi-critico" class="text-4xl font-black text-orange-600 mt-3 tracking-tighter">0</h3>
+                    <p class="text-xs text-orange-400 mt-2 font-medium italic">Autocompra / Atacado</p>
                 </div>
-                <div class="p-4 bg-orange-50 rounded-2xl text-orange-200"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
+                <div class="p-4 bg-orange-50 rounded-2xl text-orange-500"><i data-lucide="alert-triangle" class="w-7 h-7"></i></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div class="lg:col-span-2 bg-blue-800 p-12 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="bg-white p-10 rounded-[2.5rem] border border-slate-200 card-shadow flex flex-col justify-center">
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Desc. Médio</p>
+                <div class="flex items-baseline gap-4">
+                    <h3 id="kpi-medio" class="text-6xl font-[900] text-slate-800 tracking-tighter">0%</h3>
+                    <span class="text-green-600 text-[10px] font-black bg-green-50 px-3 py-1 rounded-full uppercase">Média Geral</span>
+                </div>
+            </div>
+
+            <div class="bg-blue-700 p-10 rounded-[3rem] text-white relative overflow-hidden shadow-2xl shadow-blue-200">
                 <div class="relative z-10">
-                    <p class="text-blue-300 font-black uppercase text-xs tracking-[0.4em]">Maior Desconto Identificado</p>
-                    <h3 id="rec-id" class="text-6xl font-black mt-6 tracking-tighter">#---</h3>
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mt-16 gap-6">
-                        <span id="rec-percent" class="text-[9rem] font-black leading-[0.
+                    <p class="text-blue-100 font-black uppercase text-[10px] tracking-widest mb-4">Maior Desconto (Geral)</p>
+                    <h3 id="rec-id" class="text-4xl font-black tracking-tighter">#---</h3>
+                    <div class="flex justify-between items-end mt-12">
+                        <span id="rec-percent" class="text-8xl font-black leading-none tracking-tighter">0% OFF</span>
+                        <div class="text-right">
+                            <p id="rec-loja" class="font-bold uppercase text-[10px] opacity-60 truncate max-w-[120px]">---</p>
+                            <p id="rec-valor" class="text-2xl font-bold mt-1">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+                <i data-lucide="zap" class="absolute -right-12 -bottom-12 w-64 h-64 opacity-10 rotate-12 text-white"></i>
+            </div>
+
+            <div class="bg-purple-700 p-10 rounded-[3rem] text-white relative overflow-hidden shadow-2xl shadow-purple-200">
+                <div class="relative z-10 h-full flex flex-col justify-between">
+                    <div>
+                        <p class="text-purple-100 font-black uppercase text-[10px] tracking-widest mb-4">Recorde (>50%)</p>
+                        <h3 id="rec-id-2" class="text-3xl font-black tracking-tighter">#---</h3>
+                    </div>
+                    <div class="mt-12 flex justify-between items-end">
+                        <div>
+                            <p class="text-[10px] opacity-60 uppercase font-bold">Bruto</p>
+                            <p id="rec-bruto-2" class="text-lg font-bold opacity-40 line-through">R$ 0,00</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] opacity-60 uppercase font-bold">Líquido</p>
+                            <p id="rec-liq-2" class="text-4xl font-black tracking-tighter">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+                <i data-lucide="award" class="absolute -right-8 -bottom-8 w-56 h-56 opacity-10 -rotate-12 text-white"></i>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-2xl overflow-hidden">
+            <div class="p-10 border-b bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-4">
+                    <i data-lucide="layout-list" class="text-slate-400"></i>
+                    <h3 class="font-black text-slate-700 text-sm uppercase tracking-[0.3em]">Transações Sinalizadas</h3>
+                </div>
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <div class="relative flex-grow md:w-80">
+                        <i data-lucide="search" class="absolute left-4 top-3 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="searchInput" onkeyup="filtrarTabela()" placeholder="Pesquisar transação, loja ou vendedor..." class="w-full pl-12 pr-6 py-3 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition-all shadow-inner">
+                    </div>
+                    <button class="p-3 border border-slate-200 rounded-2xl hover:bg-white transition-all text-slate-400 shadow-sm"><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="w-full text-left" id="minhaTabela">
+                    <thead class="bg-white sticky top-0 z-10 border-b-2 border-slate-100 shadow-sm">
+                        <tr class="text-slate-400 font-black text-[10px] uppercase tracking-widest">
+                            <th class="px-10 py-6">ID</th>
+                            <th class="px-10 py-6">Data</th>
+                            <th class="px-10 py-6">Loja</th>
+                            <th class="px-10 py-6">Vendedor</th>
+                            <th class="px-10 py-6">Cliente</th>
+                            <th class="px-10 py-6">Item</th>
+                            <th class="px-10 py-6 text-right">% Desc.</th>
+                            <th class="px-10 py-6 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-corpo" class="divide-y divide-slate-100">
+                        <tr><td colspan="8" class="px-10 py-40 text-center text-slate-300 font-bold uppercase tracking-widest">Aguardando importação do relatório CSV...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function processarArquivo(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            Papa.parse(file, {
+                header: true,
+                delimiter: ";",
+                skipEmptyLines: true,
+                encoding: "UTF-8",
+                complete: function(results) {
+                    atualizarDashboard(results.data);
+                }
+            });
+        }
+
+        const n = (v) => parseFloat(v?.toString().replace(/\./g, '').replace(',', '.')) || 0;
+        const f = (v) => v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+
+        function atualizarDashboard(dados) {
+            let tDescVal = 0, tItens = dados.length, sPerc = 0, alertas = 0, html = "";
+            let recorde = { perc: 0, id: '---', loja: '---', liq: 0, bruto: 0 };
+            let críticos = 0;
+
+            dados.forEach(item => {
+                const bruto = n(item["Vl. Unitbruto"]);
+                const liq = n(item["Vl. Totalliquido"]);
+                const descVal = n(item["Vl. Desconto"]);
+                const perc = n(item["Pr. Desconto"]);
+                const id = item["Nr. Transação"] || '---';
+
+                tDescVal += descVal;
+                sPerc += perc;
+                if (perc > 50) críticos++;
+
+                if (perc > recorde.perc) {
+                    recorde = { perc: perc, id: id, loja: item["Ds. Loja"], liq: liq, bruto: bruto };
+                }
+
+                html += `
+                    <tr class="hover:bg-slate-50 transition-all font-medium">
+                        <td class="px-10 py-6 font-black text-slate-300 text-sm">#${id}</td>
+                        <td class="px-10 py-6 text-slate-500 text-xs font-bold">${item["Dt. Transação"] || '-'}</td>
+                        <td class="px-10 py-6 font-black text-slate-600 text-[10px] uppercase tracking-wider">${item["Ds. Loja"] || '-'}</td>
+                        <td class="px-10 py-6 text-slate-500 text-xs font-bold uppercase">${item["Ds. Vendedor"] || '-'}</td>
+                        <td class="px-10 py-6 text-slate-500 text-xs">${item["Ds. Nome"] || '-'}</td>
+                        <td class="px-10 py-6 text-slate-400 text-[10px] truncate max-w-[120px] uppercase font-bold">${item["Ds. Produto"] || '-'}</td>
+                        <td class="px-10 py-6 text-right font-black text-red-600">${perc.toFixed(2)}%</td>
+                        <td class="px-10 py-6 text-center">
+                            <span class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter ${perc > 50 ? 'bg-red-700 text-white' : 'bg-red-100 text-red-700'}">
+                                PREJUÍZO
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('kpi-total').innerText = tItens.toLocaleString();
+            document.getElementById('kpi-prejuizo-count').innerText = tItens.toLocaleString(); // Exemplo de contagem
+            document.getElementById('kpi-prejuizo-valor').innerText = f(tDescVal);
+            document.getElementById('kpi-medio').innerText = (sPerc / tItens).toFixed(1) + "%";
+            document.getElementById('kpi-critico').innerText = críticos;
+            
+            document.getElementById('rec-id').innerText = "#" + recorde.id;
+            document.getElementById('rec-id-2').innerText = "#" + recorde.id;
+            document.getElementById('rec-percent').innerText = recorde.perc.toFixed(0) + "% OFF";
+            document.getElementById('rec-loja').innerText = recorde.loja;
+            document.getElementById('rec-valor').innerText = f(recorde.liq);
+            document.getElementById('rec-bruto-2').innerText = f(recorde.bruto);
+            document.getElementById('rec-liq-2').innerText = f(recorde.liq);
+
+            document.getElementById('tabela-corpo').innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function filtrarTabela() {
+            let input = document.getElementById("searchInput");
+            let filter = input.value.toUpperCase();
+            let table = document.getElementById("minhaTabela");
+            let tr = table.getElementsByTagName("tr");
+            for (let i = 1; i < tr.length; i++) {
+                tr[i].style.display = "none";
+                let td = tr[i].getElementsByTagName("td");
+                for (var j = 0; j < td.length; j++) {
+                    if (td[j] && td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    }
+                }
+            }
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
