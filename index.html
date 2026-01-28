@@ -8,88 +8,132 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
 
-    <header class="bg-gradient-to-r from-red-900 to-red-600 text-white p-6 shadow-lg">
+    <header class="bg-gradient-to-r from-red-900 to-red-600 text-white p-6 shadow-xl">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <i data-lucide="shield-alert" class="w-8 h-8"></i>
-                <h1 class="text-2xl font-bold tracking-tight">Auditoria de Descontos</h1>
+                <i data-lucide="shield-alert" class="w-10 h-10"></i>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight leading-none">Auditoria de Descontos</h1>
+                    <p class="text-red-100 text-xs mt-1 font-medium uppercase tracking-widest">Controle de Margem e Compliance</p>
+                </div>
             </div>
             <div class="flex gap-3">
                 <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="processarArquivo(this)">
-                <button onclick="document.getElementById('csvFile').click()" class="bg-white text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all shadow-sm">
-                    <i data-lucide="upload-cloud" class="w-4 h-4"></i> Importar CSV
+                <button onclick="document.getElementById('csvFile').click()" class="bg-white text-red-700 hover:bg-red-50 px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg active:scale-95">
+                    <i data-lucide="upload-cloud" class="w-5 h-5"></i> Importar Relatório CSV
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto p-6 space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Analisado</p>
-                <h3 id="kpi-total" class="text-3xl font-bold mt-1">0</h3>
-                <p class="text-sm text-slate-500">Transações</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-red-100">
-                <p class="text-xs font-bold text-red-400 uppercase tracking-wider">Itens com Desconto</p>
-                <h3 id="kpi-itens-desc" class="text-3xl font-bold text-red-600 mt-1">0</h3>
-                <p class="text-sm text-red-400">Volume de concessão</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Valor dos Descontos</p>
-                <h3 id="kpi-prejuizo" class="text-3xl font-bold mt-1">R$ 0</h3>
-                <p class="text-sm text-slate-500">Erosão de Capital</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-orange-100">
-                <p class="text-xs font-bold text-orange-400 uppercase tracking-wider">Transações Críticas</p>
-                <h3 id="kpi-alertas" class="text-3xl font-bold text-orange-600 mt-1">0</h3>
-                <p class="text-sm text-orange-400">Alertas (>50%)</p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                <p class="text-xs font-bold text-slate-400 uppercase">Desc. Médio</p>
-                <h3 id="kpi-medio" class="text-4xl font-bold text-slate-800">0%</h3>
-            </div>
-            <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
-                <p class="text-xs font-bold text-blue-500 uppercase">Maior Desconto (Geral)</p>
-                <h3 id="rec-id" class="text-2xl font-bold text-blue-900 mt-2">#---</h3>
-                <div class="flex justify-between items-end mt-4">
-                    <span id="rec-percent" class="text-3xl font-black text-blue-600">0% OFF</span>
-                    <p id="rec-loja" class="text-xs text-blue-400 font-bold uppercase">---</p>
+    <main class="max-w-7xl mx-auto p-6 space-y-8">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 card-shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase">Total Analisado</p>
+                        <h3 id="kpi-total" class="text-3xl font-bold text-slate-800 mt-2">0</h3>
+                    </div>
+                    <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i data-lucide="file-text" class="w-5 h-5"></i></div>
                 </div>
             </div>
-            <div class="bg-purple-50 p-6 rounded-xl border border-purple-100">
-                <p class="text-xs font-bold text-purple-500 uppercase">Recorde (>50%)</p>
-                <h3 id="rec-id-2" class="text-2xl font-bold text-purple-900 mt-2">#---</h3>
-                <div class="flex justify-between items-end mt-4 text-right">
-                   <p id="rec-liq-2" class="text-xl font-bold text-purple-600 w-full">R$ 0</p>
+            <div class="bg-white p-6 rounded-2xl border border-red-100 card-shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-bold text-red-400 uppercase tracking-wide">Valor Descontos</p>
+                        <h3 id="kpi-prejuizo" class="text-3xl font-bold text-red-600 mt-2">R$ 0</h3>
+                    </div>
+                    <div class="bg-red-50 p-2 rounded-lg text-red-600"><i data-lucide="trending-down" class="w-5 h-5"></i></div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 card-shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase">Desconto Médio</p>
+                        <h3 id="kpi-medio" class="text-3xl font-bold text-slate-800 mt-2">0%</h3>
+                    </div>
+                    <div class="bg-slate-100 p-2 rounded-lg text-slate-500"><i data-lucide="percent" class="w-5 h-5"></i></div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-orange-100 card-shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-bold text-orange-400 uppercase">Alertas Críticos</p>
+                        <h3 id="kpi-alertas" class="text-3xl font-bold text-orange-600 mt-2">0</h3>
+                    </div>
+                    <div class="bg-orange-50 p-2 rounded-lg text-orange-600"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-6 border-b border-slate-100 font-bold">Transações Sinalizadas</div>
-            <div class="overflow-x-auto max-h-[500px]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-blue-600 p-8 rounded-3xl text-white relative overflow-hidden shadow-xl shadow-blue-200">
+                <div class="relative z-10">
+                    <p class="text-blue-200 font-bold uppercase text-xs tracking-widest">Maior Desconto Identificado</p>
+                    <h3 id="rec-id" class="text-4xl font-black mt-2">#---</h3>
+                    <div class="flex justify-between items-end mt-8">
+                        <span id="rec-percent" class="text-5xl font-black">0% OFF</span>
+                        <div class="text-right">
+                            <p id="rec-loja" class="font-bold opacity-80 uppercase text-xs">Aguardando dados...</p>
+                            <p id="rec-valor" class="text-xl font-bold">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+                <i data-lucide="zap" class="absolute -right-4 -bottom-4 w-40 h-40 opacity-10 rotate-12"></i>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 card-shadow flex flex-col justify-between">
+                <div class="flex justify-between">
+                    <div>
+                        <p class="text-slate-400 font-bold uppercase text-xs tracking-widest">Transação de Maior Valor</p>
+                        <h3 id="rec-id-2" class="text-2xl font-bold text-slate-800 mt-1">#---</h3>
+                    </div>
+                    <div class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-black self-start">MAIOR LIQUIDEZ</div>
+                </div>
+                <div class="mt-8 flex items-end justify-between">
+                    <div>
+                        <p class="text-slate-400 text-xs font-bold uppercase">Preço Bruto</p>
+                        <p id="rec-bruto-2" class="text-xl text-slate-400 line-through font-bold">R$ 0,00</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-slate-400 text-xs font-bold uppercase">Preço Líquido</p>
+                        <p id="rec-liq-2" class="text-3xl font-black text-slate-800">R$ 0,00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-700 flex items-center gap-2 uppercase text-sm tracking-wider">
+                    <i data-lucide="layout-list" class="w-4 h-4 text-slate-400"></i> Detalhamento de Auditoria
+                </h3>
+                <span id="contador-tabela" class="text-[10px] font-black bg-slate-200 text-slate-600 px-3 py-1 rounded-full">SEM DADOS</span>
+            </div>
+            <div class="overflow-x-auto max-h-[600px]">
                 <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-50 sticky top-0 text-slate-500 text-[10px] uppercase">
-                        <tr>
-                            <th class="px-6 py-3">ID</th>
-                            <th class="px-6 py-3">Data</th>
-                            <th class="px-6 py-3">Loja</th>
-                            <th class="px-6 py-3">Vendedor</th>
-                            <th class="px-6 py-3 text-right">Bruto</th>
-                            <th class="px-6 py-3 text-right">Líquido</th>
-                            <th class="px-6 py-3 text-right">% Desc.</th>
+                    <thead class="bg-white sticky top-0 shadow-sm z-10">
+                        <tr class="text-slate-400 font-bold text-[10px] uppercase tracking-widest border-b border-slate-100">
+                            <th class="px-6 py-4">Transação</th>
+                            <th class="px-6 py-4">Data</th>
+                            <th class="px-6 py-4">Loja</th>
+                            <th class="px-6 py-4">Vendedor</th>
+                            <th class="px-6 py-4">Produto</th>
+                            <th class="px-6 py-4 text-right">Bruto</th>
+                            <th class="px-6 py-4 text-right">Líquido</th>
+                            <th class="px-6 py-4 text-right">Desc %</th>
                         </tr>
                     </thead>
-                    <tbody id="tabela-corpo" class="divide-y divide-slate-100">
-                        <tr><td colspan="7" class="px-6 py-10 text-center">Aguardando dados...</td></tr>
+                    <tbody id="tabela-corpo" class="divide-y divide-slate-50">
+                        <tr><td colspan="8" class="px-6 py-20 text-center text-slate-400 font-medium">Importe o arquivo CSV para visualizar as transações analisadas.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -104,10 +148,10 @@
             Papa.parse(file, {
                 header: true,
                 skipEmptyLines: true,
-                transformHeader: h => h.trim(), // Remove espaços extras nos nomes das colunas
+                transformHeader: h => h.trim(),
                 complete: function(results) {
-                    // Se não encontrar as colunas, tenta mudar o delimitador
-                    if (results.data.length > 0 && !results.data[0]["Vl. Desconto"]) {
+                    // Tenta detectar se as colunas principais existem
+                    if (results.data.length > 0 && !results.data[0]["Vl. Desconto"] && !results.data[0]["Nr. Transação"]) {
                         reprocessarComPontoEVirgula(file);
                     } else {
                         atualizarDashboard(results.data);
@@ -122,70 +166,71 @@
                 delimiter: ";",
                 skipEmptyLines: true,
                 transformHeader: h => h.trim(),
-                complete: function(results) {
-                    atualizarDashboard(results.data);
-                }
+                complete: function(results) { atualizarDashboard(results.data); }
             });
         }
 
-        function limparNumero(val) {
+        function n(val) {
             if (!val) return 0;
-            let n = val.toString().replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
-            return parseFloat(n) || 0;
+            let res = val.toString().replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+            return parseFloat(res) || 0;
         }
 
-        function fMoeda(v) {
+        function f(v) {
             return v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
         }
 
         function atualizarDashboard(dados) {
             let tDesc = 0, tItens = dados.length, sPerc = 0, alertas = 0, html = "";
-            let recorde = { perc: 0, id: '---', loja: '---', liq: 0 };
-            let itensComDesc = 0;
+            let recorde = { perc: 0, id: '---', loja: '---', liq: 0, bruto: 0 };
+            let totalComDesc = 0;
 
             dados.forEach(item => {
-                const bruto = limparNumero(item["Vl. Unitbru"]);
-                const liq = limparNumero(item["Vl. Totalliquido"]);
-                const descVal = limparNumero(item["Vl. Desconto"]);
+                const bruto = n(item["Vl. Unitbru"]);
+                const liq = n(item["Vl. Totalliquido"]);
+                const descVal = n(item["Vl. Desconto"]);
                 const percent = bruto > 0 ? (descVal / bruto) * 100 : 0;
                 
                 if (descVal > 0) {
                     tDesc += descVal;
                     sPerc += percent;
-                    itensComDesc++;
+                    totalComDesc++;
                     if (percent > 50) alertas++;
                 }
 
                 if (percent > recorde.perc) {
-                    recorde = { perc: percent, id: item["Nr. Transação"], loja: item["Ds. Loja"], liq: liq };
+                    recorde = { perc: percent, id: item["Nr. Transação"], loja: item["Ds. Loja"], liq: liq, bruto: bruto };
                 }
 
                 html += `
-                    <tr class="hover:bg-slate-50">
+                    <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-6 py-4 font-bold text-slate-400">#${item["Nr. Transação"] || '-'}</td>
-                        <td class="px-6 py-4">${item["Dt. Transação"] || '-'}</td>
-                        <td class="px-6 py-4 uppercase font-bold text-slate-500 text-[10px]">${item["Ds. Loja"] || '-'}</td>
-                        <td class="px-6 py-4">${item["Ds. Vendedor"] || '-'}</td>
-                        <td class="px-6 py-4 text-right">${fMoeda(bruto)}</td>
-                        <td class="px-6 py-4 text-right font-bold text-slate-800">${fMoeda(liq)}</td>
-                        <td class="px-6 py-4 text-right font-black ${percent > 40 ? 'text-red-600' : 'text-slate-700'}">${percent.toFixed(2)}%</td>
+                        <td class="px-6 py-4 text-slate-500 text-xs">${item["Dt. Transação"] || '-'}</td>
+                        <td class="px-6 py-4 font-bold text-slate-600 text-xs uppercase">${item["Ds. Loja"] || '-'}</td>
+                        <td class="px-6 py-4 text-slate-500 text-xs">${item["Ds. Vendedor"] || '-'}</td>
+                        <td class="px-6 py-4 text-slate-500 text-xs truncate max-w-[150px]">${item["Ds. Produto"] || '-'}</td>
+                        <td class="px-6 py-4 text-right font-medium text-slate-400">${f(bruto)}</td>
+                        <td class="px-6 py-4 text-right font-bold text-slate-700">${f(liq)}</td>
+                        <td class="px-6 py-4 text-right font-black ${percent > 45 ? 'text-red-600' : 'text-slate-400'}">${percent.toFixed(1)}%</td>
                     </tr>
                 `;
             });
 
-            document.getElementById('kpi-total').innerText = tItens;
-            document.getElementById('kpi-itens-desc').innerText = itensComDesc;
-            document.getElementById('kpi-prejuizo').innerText = fMoeda(tDesc);
-            document.getElementById('kpi-medio').innerText = (itensComDesc > 0 ? (sPerc / itensComDesc) : 0).toFixed(1) + "%";
+            document.getElementById('kpi-total').innerText = tItens.toLocaleString();
+            document.getElementById('kpi-prejuizo').innerText = f(tDesc);
+            document.getElementById('kpi-medio').innerText = (totalComDesc > 0 ? (sPerc / totalComDesc) : 0).toFixed(1) + "%";
             document.getElementById('kpi-alertas').innerText = alertas;
             
-            document.getElementById('rec-id').innerText = "#" + recorde.id;
-            document.getElementById('rec-id-2').innerText = "#" + recorde.id;
-            document.getElementById('rec-percent').innerText = "-" + recorde.perc.toFixed(0) + "%";
-            document.getElementById('rec-loja').innerText = recorde.loja;
-            document.getElementById('rec-liq-2').innerText = fMoeda(recorde.liq);
+            document.getElementById('rec-id').innerText = "#" + (recorde.id || '---');
+            document.getElementById('rec-id-2').innerText = "#" + (recorde.id || '---');
+            document.getElementById('rec-percent').innerText = recorde.perc.toFixed(0) + "% OFF";
+            document.getElementById('rec-loja').innerText = recorde.loja || 'LOJA NÃO IDENTIFICADA';
+            document.getElementById('rec-valor').innerText = f(recorde.liq);
+            document.getElementById('rec-bruto-2').innerText = f(recorde.bruto);
+            document.getElementById('rec-liq-2').innerText = f(recorde.liq);
 
             document.getElementById('tabela-corpo').innerHTML = html;
+            document.getElementById('contador-tabela').innerText = tItens + " TRANSAÇÕES ANALISADAS";
             lucide.createIcons();
         }
         lucide.createIcons();
