@@ -3,214 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Auditoria Interna | Senior</title>
+    <title>Análise Completa de Descontos | Auditoria Interna</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .header-gradient { background: linear-gradient(90deg, #450a0a 0%, #991b1b 100%); }
+        .header-bg { background: linear-gradient(90deg, #450a0a 0%, #991b1b 100%); }
         .card-shadow { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        .table-container { max-height: 600px; overflow-y: auto; }
-        /* Ajuste de Proporção */
-        .max-w-custom { max-width: 1400px; }
+        .btn-active { background-color: #7f1d1d; border: 1px solid #991b1b; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+        .table-res { max-height: 550px; overflow-y: auto; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="text-slate-900">
 
-    <header class="header-gradient text-white py-8 px-10 shadow-2xl">
-        <div class="max-w-custom mx-auto flex flex-col lg:flex-row justify-between items-center gap-6">
-            <div class="flex items-center gap-4">
-                <div class="bg-white/10 p-3 rounded-2xl">
-                    <i data-lucide="shield-alert" class="w-10 h-10"></i>
+    <header class="header-bg text-white py-10 px-12 shadow-2xl border-b-4 border-red-900">
+        <div class="max-w-[1500px] mx-auto flex flex-col lg:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-5">
+                <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+                    <i data-lucide="shield-check" class="w-12 h-12 text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-black tracking-tighter uppercase">Auditoria de Descontos</h1>
-                    <p class="text-red-200 text-xs font-bold tracking-[0.3em] opacity-80 uppercase">Análise de Compliance - Diamantes</p>
+                    <h1 class="text-4xl font-black uppercase tracking-tighter leading-none">Análise Completa</h1>
+                    <p class="text-red-200 text-[11px] font-bold tracking-[0.4em] uppercase mt-2 opacity-80">Auditoria Interna de Descontos</p>
                 </div>
             </div>
             
-            <div class="flex flex-wrap items-center gap-4">
+            <div class="flex flex-wrap items-center gap-6">
                 <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="processarArquivo(this)">
-                <button onclick="document.getElementById('csvFile').click()" class="bg-white text-red-800 hover:bg-red-50 px-8 py-3 rounded-xl font-black text-sm flex items-center gap-3 transition-all shadow-xl active:scale-95">
-                    <i data-lucide="upload-cloud" class="w-5 h-5"></i> IMPORTAR RELATÓRIO
+                <button onclick="document.getElementById('csvFile').click()" class="bg-white text-red-900 hover:bg-red-50 px-10 py-4 rounded-2xl font-black text-sm flex items-center gap-3 transition-all shadow-2xl active:scale-95 border-b-4 border-slate-200">
+                    <i data-lucide="upload" class="w-5 h-5"></i> IMPORTAR CSV
                 </button>
                 
-                <div class="flex bg-red-950/30 p-1.5 rounded-2xl border border-red-800/50">
-                    <button class="px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-red-900/40 transition-all">Visão Geral</button>
-                    <button class="bg-red-900 px-6 py-2.5 rounded-xl font-bold text-sm shadow-2xl border border-red-700">Lista Detalhada</button>
+                <div class="flex bg-black/20 p-2 rounded-2xl border border-white/10">
+                    <button class="px-8 py-3 rounded-xl font-bold text-xs uppercase opacity-50 hover:opacity-100 transition-all">Visão Geral</button>
+                    <button class="btn-active px-8 py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Lista Detalhada</button>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-custom mx-auto p-10 space-y-10">
+    <main class="max-w-[1500px] mx-auto p-12 space-y-12">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 card-shadow flex justify-between items-center">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-200 card-shadow flex justify-between items-center">
                 <div>
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Total Analisado</p>
-                    <h3 id="kpi-total" class="text-4xl font-black text-slate-800 mt-2">0</h3>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Analisado</p>
+                    <h3 id="kpi-total" class="text-5xl font-black text-slate-800 mt-3 tracking-tighter">0</h3>
                 </div>
-                <i data-lucide="file-text" class="w-10 h-10 text-slate-200"></i>
+                <div class="p-4 bg-slate-50 rounded-2xl text-slate-300"><i data-lucide="database" class="w-8 h-8"></i></div>
             </div>
 
-            <div class="bg-white p-8 rounded-3xl border border-red-100 card-shadow flex justify-between items-center border-l-8 border-l-red-600">
+            <div class="bg-white p-8 rounded-[2rem] border border-red-100 card-shadow flex justify-between items-center border-l-[12px] border-l-red-700">
                 <div>
-                    <p class="text-xs font-black text-red-500 uppercase tracking-widest">Valor Descontos</p>
-                    <h3 id="kpi-prejuizo" class="text-4xl font-black text-red-600 mt-2">R$ 0</h3>
+                    <p class="text-[10px] font-black text-red-600 uppercase tracking-[0.2em]">Valor Descontos</p>
+                    <h3 id="kpi-prejuizo" class="text-5xl font-black text-red-700 mt-3 tracking-tighter">R$ 0</h3>
                 </div>
-                <i data-lucide="trending-down" class="w-10 h-10 text-red-100"></i>
+                <div class="p-4 bg-red-50 rounded-2xl text-red-200"><i data-lucide="trending-down" class="w-8 h-8"></i></div>
             </div>
 
-            <div class="bg-white p-8 rounded-3xl border border-slate-200 card-shadow flex justify-between items-center">
+            <div class="bg-white p-8 rounded-[2rem] border border-slate-200 card-shadow flex justify-between items-center">
                 <div>
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Desc. Médio</p>
-                    <h3 id="kpi-medio" class="text-4xl font-black text-slate-800 mt-2">0%</h3>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Média Geral</p>
+                    <h3 id="kpi-medio" class="text-5xl font-black text-slate-800 mt-3 tracking-tighter">0%</h3>
                 </div>
-                <i data-lucide="percent" class="w-10 h-10 text-slate-200"></i>
+                <div class="p-4 bg-slate-50 rounded-2xl text-slate-300"><i data-lucide="percent" class="w-8 h-8"></i></div>
             </div>
 
-            <div class="bg-white p-8 rounded-3xl border border-orange-100 card-shadow flex justify-between items-center border-l-8 border-l-orange-500">
+            <div class="bg-white p-8 rounded-[2rem] border border-orange-100 card-shadow flex justify-between items-center border-l-[12px] border-l-orange-500">
                 <div>
-                    <p class="text-xs font-black text-orange-500 uppercase tracking-widest">Alertas (>50%)</p>
-                    <h3 id="kpi-alertas" class="text-4xl font-black text-orange-600 mt-2">0</h3>
+                    <p class="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em]">Críticos (>50%)</p>
+                    <h3 id="kpi-alertas" class="text-5xl font-black text-orange-600 mt-3 tracking-tighter">0</h3>
                 </div>
-                <i data-lucide="alert-circle" class="w-10 h-10 text-orange-100"></i>
+                <div class="p-4 bg-orange-50 rounded-2xl text-orange-200"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 bg-blue-700 p-10 rounded-[3rem] text-white relative overflow-hidden shadow-2xl shadow-blue-200">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div class="lg:col-span-2 bg-blue-800 p-12 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl">
                 <div class="relative z-10">
-                    <p class="text-blue-200 font-black uppercase text-xs tracking-[0.3em]">Maior Desconto Identificado</p>
-                    <h3 id="rec-id" class="text-5xl font-black mt-4">#---</h3>
-                    <div class="flex justify-between items-end mt-12">
-                        <span id="rec-percent" class="text-8xl font-black tracking-tighter">0% OFF</span>
-                        <div class="text-right">
-                            <p id="rec-loja" class="font-black uppercase text-sm opacity-60">---</p>
-                            <p id="rec-valor" class="text-3xl font-bold">R$ 0,00</p>
-                        </div>
-                    </div>
-                </div>
-                <i data-lucide="zap" class="absolute -right-10 -bottom-10 w-80 h-80 opacity-10 rotate-12"></i>
-            </div>
-
-            <div class="bg-purple-700 p-10 rounded-[3rem] text-white relative overflow-hidden shadow-2xl shadow-purple-200">
-                <div class="relative z-10 h-full flex flex-col justify-between">
-                    <div>
-                        <p class="text-purple-200 font-black uppercase text-xs tracking-[0.3em]">Recorde Unitário</p>
-                        <h3 id="rec-id-2" class="text-3xl font-black mt-4">#---</h3>
-                    </div>
-                    <div class="mt-12 text-right">
-                        <p class="text-purple-200 text-xs font-bold uppercase opacity-60">Valor Líquido</p>
-                        <p id="rec-liq-2" class="text-5xl font-black tracking-tight">R$ 0,00</p>
-                    </div>
-                </div>
-                <i data-lucide="award" class="absolute -right-6 -bottom-6 w-56 h-56 opacity-10 -rotate-12"></i>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-xl overflow-hidden">
-            <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="font-black text-slate-700 flex items-center gap-3 uppercase text-sm tracking-widest">
-                    <i data-lucide="layout-list" class="w-5 h-5 text-slate-400"></i> Transações em Auditoria
-                </h3>
-                <span id="contador" class="text-[11px] font-black bg-slate-800 text-white px-5 py-2 rounded-full uppercase">0 Registros</span>
-            </div>
-            <div class="table-container">
-                <table class="w-full text-left">
-                    <thead class="bg-white sticky top-0 z-20 border-b-2 border-slate-100">
-                        <tr class="text-slate-400 font-black text-[10px] uppercase tracking-widest">
-                            <th class="px-8 py-5">ID Transação</th>
-                            <th class="px-8 py-5">Data</th>
-                            <th class="px-8 py-5">Loja</th>
-                            <th class="px-8 py-5">Vendedor</th>
-                            <th class="px-8 py-5 text-right">Bruto</th>
-                            <th class="px-8 py-5 text-right">Líquido</th>
-                            <th class="px-8 py-5 text-center">Desconto</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-corpo" class="divide-y divide-slate-100 font-medium">
-                        <tr><td colspan="7" class="px-8 py-32 text-center text-slate-400 italic">O painel aguarda a importação do arquivo DESCONTOS_1 - 30%+.CSV...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        function processarArquivo(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            Papa.parse(file, {
-                header: true,
-                delimiter: ";",
-                encoding: "ISO-8859-1",
-                skipEmptyLines: true,
-                transformHeader: h => h.trim(),
-                complete: function(res) { atualizar(res.data); }
-            });
-        }
-
-        const n = v => parseFloat(v?.toString().replace(/\./g, '').replace(',', '.')) || 0;
-        const f = v => v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
-
-        function atualizar(dados) {
-            let tDesc = 0, tItens = dados.length, sPerc = 0, alertas = 0, html = "";
-            let rec = { perc: 0, id: '---', loja: '---', liq: 0 };
-
-            dados.forEach(item => {
-                const bruto = n(item["Vl. Unitbruto"]);
-                const liq = n(item["Vl. Totalliquido"]);
-                const desc = n(item["Vl. Desconto"]);
-                const perc = n(item["Pr. Desconto"]);
-                const id = item["Nr. Transação"] || '---';
-
-                tDesc += desc;
-                sPerc += perc;
-                if (perc > 50) alertas++;
-
-                if (perc > rec.perc) {
-                    rec = { perc: perc, id: id, loja: item["Ds. Loja"], liq: liq };
-                }
-
-                html += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-8 py-5 font-bold text-slate-400 text-sm">#${id}</td>
-                        <td class="px-8 py-5 text-slate-500 text-xs">${item["Dt. Transação"] || '-'}</td>
-                        <td class="px-8 py-5 font-black text-slate-600 text-[10px] uppercase">${item["Ds. Loja"] || '-'}</td>
-                        <td class="px-8 py-5 text-slate-500 text-xs">${item["Ds. Vendedor"] || '-'}</td>
-                        <td class="px-8 py-5 text-right font-bold text-slate-300 text-sm">${f(bruto)}</td>
-                        <td class="px-8 py-5 text-right font-black text-slate-800 text-sm">${f(liq)}</td>
-                        <td class="px-8 py-5 text-center">
-                            <span class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase ${perc > 45 ? 'bg-red-600 text-white' : 'bg-orange-400 text-white'}">
-                                ${perc.toFixed(1)}% OFF
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById('kpi-total').innerText = tItens.toLocaleString();
-            document.getElementById('kpi-prejuizo').innerText = f(tDesc);
-            document.getElementById('kpi-medio').innerText = (sPerc / tItens).toFixed(1) + "%";
-            document.getElementById('kpi-alertas').innerText = alertas;
-            
-            document.getElementById('rec-id').innerText = "#" + rec.id;
-            document.getElementById('rec-id-2').innerText = "#" + rec.id;
-            document.getElementById('rec-percent').innerText = rec.perc.toFixed(0) + "% OFF";
-            document.getElementById('rec-loja').innerText = rec.loja;
-            document.getElementById('rec-valor').innerText = f(rec.liq);
-            document.getElementById('rec-liq-2').innerText = f(rec.liq);
-
-            document.getElementById('tabela-corpo').innerHTML = html;
-            document.getElementById('contador').innerText = tItens + " REGISTROS ANALISADOS";
-            lucide.createIcons();
-        }
-        lucide.createIcons();
-    </script>
-</body>
-</html>
+                    <p class="text-blue-300 font-black uppercase text-xs tracking-[0.4em]">Maior Desconto Identificado</p>
+                    <h3 id="rec-id" class="text-6xl font-black mt-6 tracking-tighter">#---</h3>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mt-16 gap-6">
+                        <span id="rec-percent" class="text-[9rem] font-black leading-[0.
