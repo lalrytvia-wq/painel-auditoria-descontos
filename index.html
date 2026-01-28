@@ -31,84 +31,65 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Analisado</p>
-                <h3 id="kpi-total" class="text-3xl font-bold mt-1 text-slate-800">0</h3>
+                <h3 id="kpi-total" class="text-3xl font-bold mt-1">0</h3>
                 <p class="text-sm text-slate-500">Transações</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-red-100">
                 <p class="text-xs font-bold text-red-400 uppercase tracking-wider">Itens com Desconto</p>
                 <h3 id="kpi-itens-desc" class="text-3xl font-bold text-red-600 mt-1">0</h3>
-                <p class="text-sm text-red-400 italic">Volume de concessão</p>
+                <p class="text-sm text-red-400">Volume de concessão</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Valor dos Descontos</p>
-                <h3 id="kpi-prejuizo" class="text-3xl font-bold text-slate-800 mt-1">R$ 0</h3>
-                <p class="text-sm text-slate-500 italic">Erosão de Capital</p>
+                <h3 id="kpi-prejuizo" class="text-3xl font-bold mt-1">R$ 0</h3>
+                <p class="text-sm text-slate-500">Erosão de Capital</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-orange-100">
                 <p class="text-xs font-bold text-orange-400 uppercase tracking-wider">Transações Críticas</p>
                 <h3 id="kpi-alertas" class="text-3xl font-bold text-orange-600 mt-1">0</h3>
-                <p class="text-sm text-orange-400 italic">Alertas (>50%)</p>
+                <p class="text-sm text-orange-400">Alertas (>50%)</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Desc. Médio</p>
-                <div class="flex items-baseline gap-2 mt-1">
-                    <h3 id="kpi-medio" class="text-4xl font-bold text-slate-800">0%</h3>
-                    <span class="text-green-600 text-sm font-medium">Média Geral</span>
-                </div>
+                <p class="text-xs font-bold text-slate-400 uppercase">Desc. Médio</p>
+                <h3 id="kpi-medio" class="text-4xl font-bold text-slate-800">0%</h3>
             </div>
-
-            <div class="bg-blue-50 p-6 rounded-xl border border-blue-100 relative">
+            <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
                 <p class="text-xs font-bold text-blue-500 uppercase">Maior Desconto (Geral)</p>
                 <h3 id="rec-id" class="text-2xl font-bold text-blue-900 mt-2">#---</h3>
                 <div class="flex justify-between items-end mt-4">
                     <span id="rec-percent" class="text-3xl font-black text-blue-600">0% OFF</span>
-                    <div class="text-right">
-                        <p id="rec-loja" class="text-[10px] text-blue-400 uppercase font-bold truncate max-w-[120px]">---</p>
-                        <p id="rec-valor" class="text-sm font-bold text-blue-800">Liq: R$ 0</p>
-                    </div>
+                    <p id="rec-loja" class="text-xs text-blue-400 font-bold uppercase">---</p>
                 </div>
             </div>
-
             <div class="bg-purple-50 p-6 rounded-xl border border-purple-100">
-                <p class="text-xs font-bold text-purple-500 uppercase tracking-wider">Recorde (>50%)</p>
+                <p class="text-xs font-bold text-purple-500 uppercase">Recorde (>50%)</p>
                 <h3 id="rec-id-2" class="text-2xl font-bold text-purple-900 mt-2">#---</h3>
-                <div class="flex justify-between items-end mt-4">
-                    <div>
-                        <p class="text-xs text-purple-400 font-bold">Bruto</p>
-                        <p id="rec-bruto-2" class="text-sm font-bold text-slate-400 line-through">R$ 0</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs text-purple-400 font-bold">Líquido</p>
-                        <p id="rec-liq-2" class="text-xl font-bold text-purple-600">R$ 0</p>
-                    </div>
+                <div class="flex justify-between items-end mt-4 text-right">
+                   <p id="rec-liq-2" class="text-xl font-bold text-purple-600 w-full">R$ 0</p>
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-bold flex items-center gap-2"><i data-lucide="list"></i> Transações Sinalizadas</h3>
-                <span id="contador-tabela" class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">0 itens</span>
-            </div>
+            <div class="p-6 border-b border-slate-100 font-bold">Transações Sinalizadas</div>
             <div class="overflow-x-auto max-h-[500px]">
                 <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-50 sticky top-0 text-slate-500 text-[10px] uppercase font-bold tracking-widest">
+                    <thead class="bg-slate-50 sticky top-0 text-slate-500 text-[10px] uppercase">
                         <tr>
                             <th class="px-6 py-3">ID</th>
                             <th class="px-6 py-3">Data</th>
                             <th class="px-6 py-3">Loja</th>
                             <th class="px-6 py-3">Vendedor</th>
-                            <th class="px-6 py-3">Produto</th>
                             <th class="px-6 py-3 text-right">Bruto</th>
                             <th class="px-6 py-3 text-right">Líquido</th>
                             <th class="px-6 py-3 text-right">% Desc.</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-corpo" class="divide-y divide-slate-100">
-                        <tr><td colspan="8" class="px-6 py-10 text-center text-slate-400 italic">Selecione o arquivo CSV para processar a auditoria...</td></tr>
+                        <tr><td colspan="7" class="px-6 py-10 text-center">Aguardando dados...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -123,7 +104,24 @@
             Papa.parse(file, {
                 header: true,
                 skipEmptyLines: true,
-                dynamicTyping: false,
+                transformHeader: h => h.trim(), // Remove espaços extras nos nomes das colunas
+                complete: function(results) {
+                    // Se não encontrar as colunas, tenta mudar o delimitador
+                    if (results.data.length > 0 && !results.data[0]["Vl. Desconto"]) {
+                        reprocessarComPontoEVirgula(file);
+                    } else {
+                        atualizarDashboard(results.data);
+                    }
+                }
+            });
+        }
+
+        function reprocessarComPontoEVirgula(file) {
+            Papa.parse(file, {
+                header: true,
+                delimiter: ";",
+                skipEmptyLines: true,
+                transformHeader: h => h.trim(),
                 complete: function(results) {
                     atualizarDashboard(results.data);
                 }
@@ -132,7 +130,8 @@
 
         function limparNumero(val) {
             if (!val) return 0;
-            return parseFloat(val.toString().replace(/\./g, '').replace(',', '.'));
+            let n = val.toString().replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+            return parseFloat(n) || 0;
         }
 
         function fMoeda(v) {
@@ -141,7 +140,7 @@
 
         function atualizarDashboard(dados) {
             let tDesc = 0, tItens = dados.length, sPerc = 0, alertas = 0, html = "";
-            let recorde = { perc: 0, id: '---', loja: '---', liq: 0, bruto: 0 };
+            let recorde = { perc: 0, id: '---', loja: '---', liq: 0 };
             let itensComDesc = 0;
 
             dados.forEach(item => {
@@ -158,16 +157,38 @@
                 }
 
                 if (percent > recorde.perc) {
-                    recorde = { perc: percent, id: item["Nr. Transação"], loja: item["Ds. Loja"], liq: liq, bruto: bruto };
+                    recorde = { perc: percent, id: item["Nr. Transação"], loja: item["Ds. Loja"], liq: liq };
                 }
 
                 html += `
-                    <tr class="hover:bg-slate-50 transition-colors text-slate-600">
+                    <tr class="hover:bg-slate-50">
                         <td class="px-6 py-4 font-bold text-slate-400">#${item["Nr. Transação"] || '-'}</td>
-                        <td class="px-6 py-4 text-[11px]">${item["Dt. Transação"] || '-'}</td>
-                        <td class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase">${item["Ds. Loja"] || '-'}</td>
-                        <td class="px-6 py-4 text-[11px]">${item["Ds. Vendedor"] || '-'}</td>
-                        <td class="px-6 py-4 text-[11px] truncate max-w-[180px]">${item["Ds. Produto"] || '-'}</td>
+                        <td class="px-6 py-4">${item["Dt. Transação"] || '-'}</td>
+                        <td class="px-6 py-4 uppercase font-bold text-slate-500 text-[10px]">${item["Ds. Loja"] || '-'}</td>
+                        <td class="px-6 py-4">${item["Ds. Vendedor"] || '-'}</td>
                         <td class="px-6 py-4 text-right">${fMoeda(bruto)}</td>
                         <td class="px-6 py-4 text-right font-bold text-slate-800">${fMoeda(liq)}</td>
-                        <td class
+                        <td class="px-6 py-4 text-right font-black ${percent > 40 ? 'text-red-600' : 'text-slate-700'}">${percent.toFixed(2)}%</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('kpi-total').innerText = tItens;
+            document.getElementById('kpi-itens-desc').innerText = itensComDesc;
+            document.getElementById('kpi-prejuizo').innerText = fMoeda(tDesc);
+            document.getElementById('kpi-medio').innerText = (itensComDesc > 0 ? (sPerc / itensComDesc) : 0).toFixed(1) + "%";
+            document.getElementById('kpi-alertas').innerText = alertas;
+            
+            document.getElementById('rec-id').innerText = "#" + recorde.id;
+            document.getElementById('rec-id-2').innerText = "#" + recorde.id;
+            document.getElementById('rec-percent').innerText = "-" + recorde.perc.toFixed(0) + "%";
+            document.getElementById('rec-loja').innerText = recorde.loja;
+            document.getElementById('rec-liq-2').innerText = fMoeda(recorde.liq);
+
+            document.getElementById('tabela-corpo').innerHTML = html;
+            lucide.createIcons();
+        }
+        lucide.createIcons();
+    </script>
+</body>
+</html>
