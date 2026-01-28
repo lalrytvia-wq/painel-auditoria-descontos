@@ -3,38 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditoria Interna | Diamantes</title>
+    <title>Análise de Descontos | Auditoria</title>
+    
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .bg-diamantes { background: linear-gradient(135deg, #450a0a 0%, #991b1b 100%); }
+        .modal-overlay { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useMemo } = React;
+        const { useState, useMemo, useEffect } = React;
+
+        // Componente para renderizar os ícones da foto
+        const Icon = ({ name, className }) => {
+            useEffect(() => { lucide.createIcons(); }, []);
+            return <i data-lucide={name} className={className}></i>;
+        };
 
         const App = () => {
             const [data, setData] = useState([]);
-            const [view, setView] = useState('upload'); // upload, visao, lista
+            const [view, setView] = useState('upload'); // 'upload' ou 'dashboard'
+            const [tab, setTab] = useState('visao'); // 'visao' ou 'lista'
             const [selectedItem, setSelectedItem] = useState(null);
 
-            const handleFileUpload = (e) => {
+            const handleFile = (e) => {
                 const file = e.target.files[0];
                 Papa.parse(file, {
-                    header: true,
-                    delimiter: ";",
-                    skipEmptyLines: true,
+                    header: true, delimiter: ";", skipEmptyLines: true, encoding: "UTF-8",
                     complete: (results) => {
                         setData(results.data);
-                        setView('visao');
+                        setView('dashboard');
                     }
                 });
             };
@@ -42,26 +52,31 @@
             const n = (v) => parseFloat(v?.toString().replace(/\./g, '').replace(',', '.')) || 0;
             const f = (v) => v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
 
-            // Cálculos do seu Painel
+            // Cálculos baseados na sua foto
             const stats = useMemo(() => {
-                let tDesc = 0, sPerc = 0, crit = 0;
+                let vDesc = 0, sPerc = 0, crit = 0;
+                let top = { p: 0, id: '-', loja: '-', liq: 0, bruto: 0 };
+                
                 data.forEach(item => {
-                    const d = n(item["Vl. Desconto"]);
-                    const p = n(item["Pr. Desconto"]);
-                    tDesc += d; sPerc += p;
+                    const d = n(item["Vl. Desconto"]), p = n(item["Pr. Desconto"]);
+                    vDesc += d; sPerc += p;
                     if (p > 50) crit++;
+                    if (p > top.p) top = { p, id: item["Nr. Transação"], loja: item["Ds. Loja"], liq: n(item["Vl. Totalliquido"]), bruto: n(item["Vl. Unitbruto"]) };
                 });
-                return { total: data.length, desc: tDesc, medio: (sPerc/data.length || 0), crit };
+                return { total: data.length, vDesc, medio: (sPerc/data.length || 0), crit, top };
             }, [data]);
 
             if (view === 'upload') {
                 return (
-                    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
-                        <div className="max-w-md w-full bg-white rounded-[2rem] shadow-2xl p-10 text-center border border-slate-100">
-                            <h2 className="text-2xl font-black text-slate-800 mb-6">Iniciar Auditoria</h2>
-                            <label className="cursor-pointer bg-slate-900 text-white px-8 py-4 rounded-xl font-bold uppercase text-xs tracking-widest block hover:bg-black transition-all">
+                    <div className="min-h-screen flex items-center justify-center p-6">
+                        <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 text-center border border-slate-100">
+                            <div className="bg-red-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner">
+                                <Icon name="file-up" className="w-10 h-10 text-red-600" />
+                            </div>
+                            <h2 className="text-2xl font-black text-slate-800 mb-6">Importar Auditoria</h2>
+                            <label className="cursor-pointer bg-slate-900 text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-widest block hover:bg-black transition-all shadow-xl">
                                 Selecionar CSV
-                                <input type="file" className="hidden" onChange={handleFileUpload} accept=".csv" />
+                                <input type="file" className="hidden" onChange={handleFile} accept=".csv" />
                             </label>
                         </div>
                     </div>
@@ -69,56 +84,87 @@
             }
 
             return (
-                <div className="min-h-screen bg-slate-50">
-                    <header className="bg-diamantes text-white p-8 shadow-xl">
+                <div className="min-h-screen pb-10">
+                    {/* Header idêntico à foto */}
+                    <header className="bg-diamantes text-white py-8 px-12 shadow-2xl sticky top-0 z-40">
                         <div className="max-w-7xl mx-auto flex justify-between items-center">
-                            <h1 className="text-3xl font-black uppercase tracking-tighter">Análise Completa</h1>
-                            <div className="flex gap-2 bg-black/20 p-1 rounded-xl">
-                                <button onClick={() => setView('visao')} className={`px-6 py-2 rounded-lg font-bold text-xs ${view === 'visao' ? 'bg-red-800 shadow-lg' : 'opacity-50'}`}>VISÃO GERAL</button>
-                                <button onClick={() => setView('lista')} className={`px-6 py-2 rounded-lg font-bold text-xs ${view === 'lista' ? 'bg-red-800 shadow-lg' : 'opacity-50'}`}>LISTA DETALHADA</button>
+                            <div className="flex items-center gap-4">
+                                <Icon name="shield-alert" className="w-10 h-10" />
+                                <h1 className="text-3xl font-black uppercase tracking-tighter">Análise Completa</h1>
+                            </div>
+                            <div className="flex bg-black/20 p-1.5 rounded-2xl border border-white/10">
+                                <button onClick={() => setTab('visao')} className={`px-8 py-2.5 rounded-xl font-bold text-xs ${tab === 'visao' ? 'bg-red-900 shadow-lg' : 'opacity-50'}`}>VISÃO GERAL</button>
+                                <button onClick={() => setTab('lista')} className={`px-8 py-2.5 rounded-xl font-bold text-xs ${tab === 'lista' ? 'bg-red-900 shadow-lg' : 'opacity-50'}`}>LISTA DETALHADA</button>
                             </div>
                         </div>
                     </header>
 
-                    <main className="max-w-7xl mx-auto p-8 space-y-8">
-                        {view === 'visao' ? (
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 font-black">
-                                    <p className="text-[10px] text-slate-400 uppercase">Total</p>
-                                    <p className="text-3xl text-slate-800">{stats.total}</p>
+                    <main className="max-w-7xl mx-auto p-10 space-y-10">
+                        {tab === 'visao' ? (
+                            <div className="space-y-10 animate-in fade-in duration-500">
+                                {/* KPIs Principais */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <div className="bg-white p-8 rounded-3xl border shadow-sm font-black">
+                                        <p className="text-[10px] text-slate-400 uppercase">Total</p>
+                                        <p className="text-4xl text-slate-800">{stats.total}</p>
+                                    </div>
+                                    <div className="bg-white p-8 rounded-3xl border-l-[12px] border-l-red-700 shadow-sm font-black">
+                                        <p className="text-[10px] text-red-600 uppercase">Prejuízo</p>
+                                        <p className="text-4xl text-red-700">{f(stats.vDesc)}</p>
+                                    </div>
+                                    <div className="bg-white p-8 rounded-3xl border shadow-sm font-black text-center">
+                                        <p className="text-[10px] text-slate-400 uppercase">Média</p>
+                                        <p className="text-4xl text-slate-800">{stats.medio.toFixed(1)}%</p>
+                                    </div>
+                                    <div className="bg-white p-8 rounded-3xl border-l-[12px] border-l-orange-500 shadow-sm font-black">
+                                        <p className="text-[10px] text-orange-600 uppercase">Críticos</p>
+                                        <p className="text-4xl text-orange-600">{stats.crit}</p>
+                                    </div>
                                 </div>
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-red-100 border-l-8 border-l-red-600 font-black">
-                                    <p className="text-[10px] text-red-500 uppercase">Descontos</p>
-                                    <p className="text-3xl text-red-600">{f(stats.desc)}</p>
-                                </div>
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 font-black">
-                                    <p className="text-[10px] text-slate-400 uppercase">Média</p>
-                                    <p className="text-3xl text-slate-800">{stats.medio.toFixed(1)}%</p>
-                                </div>
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 border-l-8 border-l-orange-500 font-black">
-                                    <p className="text-[10px] text-orange-500 uppercase">Críticos</p>
-                                    <p className="text-3xl text-orange-600">{stats.crit}</p>
+
+                                {/* Destaque Azul (Recorde) */}
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    <div className="lg:col-span-2 bg-blue-700 p-12 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl">
+                                        <p className="text-blue-200 font-black uppercase text-xs tracking-widest">Maior Desconto Identificado</p>
+                                        <h3 className="text-5xl font-black mt-4">#{stats.top.id}</h3>
+                                        <div className="flex justify-between items-end mt-12">
+                                            <span className="text-[8rem] font-black leading-none tracking-tighter">{stats.top.p.toFixed(0)}% OFF</span>
+                                            <div className="text-right">
+                                                <p className="font-bold uppercase text-[10px] opacity-60 truncate max-w-[120px]">{stats.top.loja}</p>
+                                                <p className="text-2xl font-bold">{f(stats.top.liq)}</p>
+                                            </div>
+                                        </div>
+                                        <Icon name="zap" className="absolute -right-10 -bottom-10 w-72 h-72 opacity-10 rotate-12" />
+                                    </div>
+                                    
+                                    <div className="bg-white p-10 rounded-[3.5rem] border flex flex-col justify-between shadow-xl">
+                                        <h4 className="text-xl font-black text-slate-800 leading-tight">RESUMO DE TRANSAÇÕES SINALIZADAS</h4>
+                                        <button onClick={() => setTab('lista')} className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xs uppercase shadow-lg">Ver Todas as Transações</button>
+                                    </div>
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
-                                <table className="w-full text-left text-sm">
+                            /* Lista Detalhada */
+                            <div className="bg-white rounded-[3rem] border shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5 duration-500">
+                                <table className="w-full text-left">
                                     <thead className="bg-slate-50 border-b font-black text-[10px] uppercase text-slate-400">
                                         <tr>
-                                            <th className="px-6 py-4">Transação</th>
-                                            <th className="px-6 py-4">Loja</th>
-                                            <th className="px-6 py-4 text-right">Líquido</th>
-                                            <th className="px-6 py-4 text-center">Ações</th>
+                                            <th className="px-10 py-6">ID</th>
+                                            <th className="px-10 py-6">Loja</th>
+                                            <th className="px-10 py-6 text-right">Líquido</th>
+                                            <th className="px-10 py-6 text-center">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
-                                        {data.map((item, i) => (
-                                            <tr key={i} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-6 py-4 font-bold text-slate-400">#{item["Nr. Transação"]}</td>
-                                                <td className="px-6 py-4 font-black text-slate-600 uppercase text-[10px]">{item["Ds. Loja"]}</td>
-                                                <td className="px-6 py-4 text-right font-black">{f(n(item["Vl. Totalliquido"]))}</td>
-                                                <td className="px-6 py-4 text-center">
-                                                    <button onClick={() => setSelectedItem(item)} className="bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-lg font-bold text-[10px] uppercase">Ver Detalhes</button>
+                                        {data.map((item, idx) => (
+                                            <tr key={idx} onClick={() => setSelectedItem(item)} className="hover:bg-slate-50 cursor-pointer transition-colors group">
+                                                <td className="px-10 py-6 font-black text-slate-300 italic">#{item["Nr. Transação"]}</td>
+                                                <td className="px-10 py-6 font-black text-slate-600 text-[10px] uppercase">{item["Ds. Loja"]}</td>
+                                                <td className="px-10 py-6 text-right font-black text-slate-800">{f(n(item["Vl. Totalliquido"]))}</td>
+                                                <td className="px-10 py-6 text-center">
+                                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase ${n(item["Pr. Desconto"]) > 50 ? 'bg-red-700 text-white shadow-lg' : 'bg-slate-100 text-slate-700'}`}>
+                                                        {n(item["Pr. Desconto"]).toFixed(1)}% OFF
+                                                    </span>
                                                 </td>
                                             </tr>
                                         ))}
@@ -128,30 +174,27 @@
                         )}
                     </main>
 
-                    {/* MODAL DE DETALHES FIEL AO SEU TXT */}
+                    {/* MODAL DE DETALHES (O CARD QUE VOCÊ QUERIA) */}
                     {selectedItem && (
-                        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-6 z-50 backdrop-blur-sm">
-                            <div className="bg-white w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl">
-                                <div className="bg-diamantes p-6 text-white flex justify-between items-center">
-                                    <h3 className="font-black uppercase tracking-tighter">Detalhes da Transação</h3>
-                                    <button onClick={() => setSelectedItem(null)} className="text-2xl">&times;</button>
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 modal-overlay">
+                            <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+                                <div className="bg-diamantes p-8 text-white flex justify-between items-center">
+                                    <h3 className="text-2xl font-black uppercase tracking-tighter italic">Detalhes da Transação</h3>
+                                    <button onClick={() => setSelectedItem(null)} className="text-3xl">&times;</button>
                                 </div>
-                                <div className="p-8 space-y-4">
-                                    <div className="flex justify-between border-b pb-4">
-                                        <p className="text-xs font-bold text-slate-400 uppercase">Loja</p>
-                                        <p className="font-black text-slate-700">{selectedItem["Ds. Loja"]}</p>
+                                <div className="p-10 space-y-6">
+                                    <div className="grid grid-cols-2 gap-6 border-b pb-6 font-black">
+                                        <div><p className="text-[10px] text-slate-400 uppercase">Loja</p><p className="text-slate-700">{selectedItem["Ds. Loja"]}</p></div>
+                                        <div><p className="text-[10px] text-slate-400 uppercase">Data</p><p className="text-slate-700">{selectedItem["Dt. Transação"]}</p></div>
                                     </div>
-                                    <div className="flex justify-between border-b pb-4">
-                                        <p className="text-xs font-bold text-slate-400 uppercase">Vendedor</p>
-                                        <p className="font-black text-slate-700">{selectedItem["Ds. Vendedor"]}</p>
-                                    </div>
-                                    <div className="bg-slate-50 p-4 rounded-2xl flex justify-between">
-                                        <p className="text-xs font-bold text-slate-400 uppercase">Valor do Desconto</p>
-                                        <p className="font-black text-red-600">{f(n(selectedItem["Vl. Desconto"]))}</p>
+                                    <div className="bg-slate-50 p-8 rounded-[2.5rem] space-y-4">
+                                        <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-400">BRUTO</span><span className="font-bold text-slate-300 line-through italic">{f(n(selectedItem["Vl. Unitbruto"]))}</span></div>
+                                        <div className="flex justify-between items-center"><span className="text-xs font-bold text-red-600 uppercase">DESCONTO</span><span className="text-2xl font-black text-red-600">-{f(n(selectedItem["Vl. Desconto"]))}</span></div>
+                                        <div className="flex justify-between items-center border-t pt-4"><span className="text-sm font-black text-slate-800">LÍQUIDO</span><span className="text-3xl font-black text-slate-900 leading-none tracking-tighter">{f(n(selectedItem["Vl. Totalliquido"]))}</span></div>
                                     </div>
                                 </div>
-                                <div className="p-6 text-right border-t">
-                                    <button onClick={() => setSelectedItem(null)} className="bg-slate-900 text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase">Fechar</button>
+                                <div className="p-8 bg-slate-50 border-t text-right">
+                                    <button onClick={() => setSelectedItem(null)} className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase shadow-lg">Fechar Detalhes</button>
                                 </div>
                             </div>
                         </div>
