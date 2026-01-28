@@ -7,224 +7,130 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #fcfcfc; }
-        .bg-header { background: linear-gradient(90deg, #450a0a 0%, #991b1b 100%); }
-        .card-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .header-red { background: linear-gradient(90deg, #450a0a 0%, #991b1b 100%); }
+        .card-custom { border-radius: 2rem; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .card-custom:hover { transform: translateY(-4px); }
         .hidden-page { display: none !important; }
-        .modal-bg { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); }
     </style>
 </head>
 <body>
 
-    <div id="page-upload" class="min-h-screen flex flex-col">
-        <header class="bg-header text-white py-4 px-8 shadow-md">
-            <div class="flex items-center gap-2 max-w-7xl mx-auto w-full">
-                <i data-lucide="shield-check" class="w-6 h-6"></i>
-                <h1 class="text-sm font-extrabold uppercase tracking-tight">Auditoria de Descontos</h1>
+    <div id="page-upload" class="min-h-screen flex flex-col items-center justify-center p-6">
+        <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 text-center border border-slate-100">
+            <div class="bg-red-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="upload-cloud" class="w-8 h-8 text-red-600"></i>
             </div>
-        </header>
-        <main class="flex-grow flex items-center justify-center p-4">
-            <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-100 p-8 text-center">
-                <h2 class="text-xl font-extrabold text-slate-800 mb-2">Iniciar Nova Auditoria</h2>
-                <p class="text-slate-500 mb-8 text-xs leading-relaxed">Importe o arquivo CSV para gerar o painel.</p>
-                <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="processarArquivo(this)">
-                <div onclick="document.getElementById('csvFile').click()" class="border-2 border-dashed border-slate-200 rounded-2xl p-10 cursor-pointer hover:bg-red-50 transition-all group">
-                    <i data-lucide="upload-cloud" class="w-10 h-10 text-red-600 mx-auto mb-4"></i>
-                    <span class="text-xs font-bold text-slate-600 uppercase">Selecionar Arquivo CSV</span>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <div id="page-dashboard" class="hidden-page min-h-screen">
-        <header class="bg-header text-white py-6 px-10 shadow-lg sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                <h1 id="titulo-pagina" class="text-2xl font-black uppercase tracking-tighter">Visão Geral</h1>
-                <div class="flex bg-black/20 p-1 rounded-xl border border-white/10">
-                    <button id="btn-visao" onclick="mudarTab('visao')" class="px-6 py-2 rounded-lg font-bold text-xs transition-all bg-red-900 shadow-md">Visão Geral</button>
-                    <button id="btn-lista" onclick="mudarTab('lista')" class="px-6 py-2 rounded-lg font-bold text-xs transition-all opacity-50">Lista Detalhada</button>
-                </div>
-            </div>
-        </header>
-
-        <main class="max-w-7xl mx-auto p-8">
-            <div id="tab-visao" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 card-shadow text-center">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Total Analisado</p>
-                        <h3 id="kpi-total" class="text-3xl font-black text-slate-800 mt-1">0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-red-50 card-shadow border-l-4 border-l-red-600 text-center">
-                        <p class="text-[10px] font-bold text-red-400 uppercase">Valor Descontos</p>
-                        <h3 id="kpi-prejuizo" class="text-3xl font-black text-red-600 mt-1">R$ 0</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 card-shadow text-center">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Desc. Médio</p>
-                        <h3 id="kpi-medio" class="text-3xl font-black text-slate-800 mt-1">0%</h3>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-orange-50 card-shadow border-l-4 border-l-orange-500 text-center">
-                        <p class="text-[10px] font-bold text-orange-400 uppercase">Casos Críticos</p>
-                        <h3 id="kpi-critico" class="text-3xl font-black text-orange-600 mt-1">0</h3>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-blue-700 p-8 rounded-[2rem] text-white relative overflow-hidden shadow-xl">
-                        <p class="text-[10px] font-bold uppercase opacity-60">Maior Desconto</p>
-                        <h3 id="rec-id" class="text-3xl font-black mt-2">#---</h3>
-                        <div class="flex justify-between items-end mt-10">
-                            <span id="rec-perc" class="text-6xl font-black">0% OFF</span>
-                            <button onclick="mudarTab('lista')" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all">Ver Detalhes</button>
-                        </div>
-                        <i data-lucide="zap" class="absolute -right-6 -bottom-6 w-40 h-40 opacity-10 rotate-12"></i>
-                    </div>
-                    <div class="bg-white p-8 rounded-[2rem] border border-slate-100 card-shadow flex flex-col justify-between">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ação Necessária</p>
-                        <div class="mt-4">
-                            <h4 class="text-lg font-bold text-slate-800">Transações Sinalizadas</h4>
-                            <p class="text-xs text-slate-500 mt-1 italic">Existem transações que excedem o limite de margem.</p>
-                        </div>
-                        <button onclick="mudarTab('lista')" class="mt-6 w-full bg-slate-800 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest">Ver todas as transações</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-lista" class="hidden-page space-y-4">
-                <div class="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden">
-                    <div class="p-6 border-b bg-slate-50 flex justify-between items-center">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Clique em uma linha para ver detalhes</span>
-                    </div>
-                    <div class="overflow-x-auto max-h-[600px]">
-                        <table class="w-full text-sm text-left">
-                            <thead class="bg-white sticky top-0 z-10 border-b">
-                                <tr class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">
-                                    <th class="px-6 py-4">ID</th>
-                                    <th class="px-6 py-4">Data</th>
-                                    <th class="px-6 py-4">Loja</th>
-                                    <th class="px-6 py-4">Vendedor</th>
-                                    <th class="px-6 py-4 text-right">% Desc.</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-corpo" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <div id="modal-detalhes" class="hidden-page fixed inset-0 z-50 flex items-center justify-center p-4 modal-bg">
-        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-            <div class="bg-header p-6 text-white flex justify-between items-center">
-                <h3 class="text-xl font-black uppercase tracking-tighter">Detalhes da Transação</h3>
-                <button onclick="fecharModal()" class="bg-white/20 hover:bg-white/30 rounded-full p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div id="modal-conteudo" class="p-8 space-y-4 text-sm">
-                </div>
-            <div class="p-6 border-t bg-slate-50 flex justify-end">
-                <button onclick="fecharModal()" class="bg-slate-800 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest">Fechar</button>
-            </div>
+            <h2 class="text-2xl font-[900] text-slate-800 mb-2">Nova Auditoria</h2>
+            <p class="text-slate-400 text-xs mb-8">Importe o arquivo <b>DESCONTOS_1 - 30%+.CSV</b></p>
+            <input type="file" id="csvFile" accept=".csv" class="hidden" onchange="processar(this)">
+            <button onclick="document.getElementById('csvFile').click()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-black transition-all">Selecionar Arquivo</button>
         </div>
     </div>
 
-    <script>
-        let dadosGlobais = [];
-        lucide.createIcons();
+    <div id="page-dashboard" class="hidden-page min-h-screen">
+        <header class="header-red text-white p-8 shadow-xl">
+            <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-4">
+                    <i data-lucide="shield-alert" class="w-10 h-10"></i>
+                    <h1 class="text-3xl font-[900] uppercase tracking-tighter">Análise Completa</h1>
+                </div>
+                <div class="flex bg-black/20 p-1.5 rounded-2xl border border-white/10">
+                    <button onclick="tab('v')" id="bv" class="px-8 py-2.5 rounded-xl font-bold text-xs bg-red-900 shadow-lg">Visão Geral</button>
+                    <button onclick="tab('l')" id="bl" class="px-8 py-2.5 rounded-xl font-bold text-xs opacity-50">Lista Detalhada</button>
+                </div>
+            </div>
+        </header>
 
-        function processarArquivo(input) {
-            const file = input.files[0];
-            if (!file) return;
-            Papa.parse(file, {
-                header: true, delimiter: ";", skipEmptyLines: true, encoding: "UTF-8",
+        <main class="max-w-[1440px] mx-auto p-10 space-y-10">
+            <div id="visao-kpis" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white p-8 card-custom">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Analisado</p>
+                    <h3 id="k-tot" class="text-4xl font-black text-slate-800 mt-2">0</h3>
+                </div>
+                <div class="bg-white p-8 card-custom border-l-8 border-l-red-600">
+                    <p class="text-[10px] font-black text-red-500 uppercase tracking-widest">Valor Descontos</p>
+                    <h3 id="k-prej" class="text-4xl font-black text-red-600 mt-2">R$ 0</h3>
+                </div>
+                <div class="bg-white p-8 card-custom">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Desc. Médio</p>
+                    <h3 id="k-med" class="text-4xl font-black text-slate-800 mt-2">0%</h3>
+                </div>
+                <div class="bg-white p-8 card-custom border-l-8 border-l-orange-500">
+                    <p class="text-[10px] font-black text-orange-500 uppercase tracking-widest">Alertas (>50%)</p>
+                    <h3 id="k-crit" class="text-4xl font-black text-orange-600 mt-2">0</h3>
+                </div>
+            </div>
+
+            <div id="lista-tab" class="bg-white rounded-[2.5rem] border border-slate-200 shadow-2xl overflow-hidden">
+                <div class="p-8 border-b bg-slate-50/50 flex justify-between items-center">
+                    <h3 class="font-black text-slate-700 text-sm uppercase tracking-widest flex items-center gap-3">
+                        <i data-lucide="list"></i> Relatório de Transações
+                    </h3>
+                    <span id="cont" class="text-[10px] font-black bg-slate-800 text-white px-4 py-1.5 rounded-full">0 ITENS</span>
+                </div>
+                <div class="overflow-x-auto max-h-[600px]">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-white sticky top-0 border-b shadow-sm">
+                            <tr class="text-slate-400 font-black text-[10px] uppercase tracking-widest">
+                                <th class="px-8 py-5">Transação</th>
+                                <th class="px-8 py-5">Loja</th>
+                                <th class="px-8 py-5 text-right">Bruto</th>
+                                <th class="px-8 py-5 text-right">Líquido</th>
+                                <th class="px-8 py-5 text-center">Desconto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let d = [];
+        const n = v => parseFloat(v?.toString().replace(/\./g, '').replace(',', '.')) || 0;
+        const f = v => v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+
+        function processar(input) {
+            Papa.parse(input.files[0], {
+                header: true, delimiter: ";", encoding: "UTF-8", skipEmptyLines: true,
                 complete: function(res) {
-                    dadosGlobais = res.data;
-                    renderizarDashboard();
-                    renderizarTabela();
+                    d = res.data;
+                    let tD = 0, sP = 0, c = 0, h = "";
+                    d.forEach(i => {
+                        const b = n(i["Vl. Unitbruto"]), l = n(i["Vl. Totalliquido"]), de = n(i["Vl. Desconto"]), p = n(i["Pr. Desconto"]);
+                        tD += de; sP += p; if(p > 50) c++;
+                        h += `<tr class="hover:bg-slate-50 font-medium">
+                            <td class="px-8 py-5 font-bold text-slate-400">#${i["Nr. Transação"]}</td>
+                            <td class="px-8 py-5 font-black text-slate-600 text-[10px] uppercase">${i["Ds. Loja"]}</td>
+                            <td class="px-8 py-5 text-right text-slate-400">${f(b)}</td>
+                            <td class="px-8 py-5 text-right font-black text-slate-800">${f(l)}</td>
+                            <td class="px-8 py-5 text-center"><span class="px-3 py-1 rounded-lg text-[10px] font-black ${p > 45 ? 'bg-red-600 text-white' : 'bg-orange-100 text-orange-700'}">${p.toFixed(1)}%</span></td>
+                        </tr>`;
+                    });
+                    document.getElementById('k-tot').innerText = d.length;
+                    document.getElementById('k-prej').innerText = f(tD);
+                    document.getElementById('k-med').innerText = (sP / d.length).toFixed(1) + "%";
+                    document.getElementById('k-crit').innerText = c;
+                    document.getElementById('corpo').innerHTML = h;
+                    document.getElementById('cont').innerText = d.length + " REGISTROS";
                     document.getElementById('page-upload').classList.add('hidden-page');
                     document.getElementById('page-dashboard').classList.remove('hidden-page');
+                    lucide.createIcons();
                 }
             });
         }
 
-        const n = (v) => parseFloat(v?.toString().replace(/\./g, '').replace(',', '.')) || 0;
-        const f = (v) => v.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
-
-        function renderizarDashboard() {
-            let tDesc = 0, sPerc = 0, criticos = 0;
-            let rec = { perc: 0, id: '---', loja: '---' };
-            dadosGlobais.forEach(item => {
-                const desc = n(item["Vl. Desconto"]);
-                const perc = n(item["Pr. Desconto"]);
-                tDesc += desc; sPerc += perc;
-                if (perc > 50) criticos++;
-                if (perc > rec.perc) rec = { perc: perc, id: item["Nr. Transação"], loja: item["Ds. Loja"] };
-            });
-            document.getElementById('kpi-total').innerText = dadosGlobais.length;
-            document.getElementById('kpi-prejuizo').innerText = f(tDesc);
-            document.getElementById('kpi-medio').innerText = (sPerc / dadosGlobais.length).toFixed(1) + "%";
-            document.getElementById('kpi-critico').innerText = criticos;
-            document.getElementById('rec-id').innerText = "#" + rec.id;
-            document.getElementById('rec-perc').innerText = rec.perc.toFixed(0) + "% OFF";
-            document.getElementById('rec-loja').innerText = rec.loja;
+        function tab(t) {
+            const v = t === 'v';
+            document.getElementById('visao-kpis').classList.toggle('hidden-page', !v);
+            document.getElementById('bv').className = v ? "px-8 py-2.5 rounded-xl font-bold text-xs bg-red-900 shadow-lg" : "px-8 py-2.5 rounded-xl font-bold text-xs opacity-50";
+            document.getElementById('bl').className = !v ? "px-8 py-2.5 rounded-xl font-bold text-xs bg-red-900 shadow-lg" : "px-8 py-2.5 rounded-xl font-bold text-xs opacity-50";
         }
-
-        function renderizarTabela() {
-            const corpo = document.getElementById('tabela-corpo');
-            corpo.innerHTML = dadosGlobais.map((item, index) => `
-                <tr onclick="abrirDetalhes(${index})" class="hover:bg-slate-50 cursor-pointer transition-colors">
-                    <td class="px-6 py-4 font-bold text-slate-400 text-xs">#${item["Nr. Transação"]}</td>
-                    <td class="px-6 py-4 text-slate-500 text-[10px]">${item["Dt. Transação"]}</td>
-                    <td class="px-6 py-4 font-black text-slate-600 text-[10px] uppercase">${item["Ds. Loja"]}</td>
-                    <td class="px-6 py-4 text-slate-500 text-[10px] uppercase font-bold">${item["Ds. Vendedor"]}</td>
-                    <td class="px-6 py-4 text-right font-black ${n(item["Pr. Desconto"]) > 50 ? 'text-red-600' : 'text-slate-800'}">${n(item["Pr. Desconto"]).toFixed(1)}%</td>
-                </tr>
-            `).join('');
-        }
-
-        function abrirDetalhes(index) {
-            const item = dadosGlobais[index];
-            const conteudo = `
-                <div class="grid grid-cols-2 gap-4 border-b pb-4">
-                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Loja</p><p class="font-bold text-slate-700">${item["Ds. Loja"]}</p></div>
-                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Data</p><p class="font-bold text-slate-700">${item["Dt. Transação"]}</p></div>
-                </div>
-                <div class="py-2"><p class="text-[10px] font-bold text-slate-400 uppercase">Produto</p><p class="font-medium text-slate-600">${item["Ds. Produto"]}</p></div>
-                <div class="py-2"><p class="text-[10px] font-bold text-slate-400 uppercase">Vendedor / Cliente</p><p class="font-medium text-slate-600">${item["Ds. Vendedor"]} / ${item["Ds. Nome"]}</p></div>
-                <div class="grid grid-cols-3 gap-4 pt-4 border-t">
-                    <div class="text-center bg-slate-50 p-3 rounded-xl"><p class="text-[9px] font-bold text-slate-400 uppercase">Bruto</p><p class="font-black text-slate-700">${f(n(item["Vl. Unitbruto"]))}</p></div>
-                    <div class="text-center bg-red-50 p-3 rounded-xl"><p class="text-[9px] font-bold text-red-400 uppercase">Desconto</p><p class="font-black text-red-600">${f(n(item["Vl. Desconto"]))}</p></div>
-                    <div class="text-center bg-green-50 p-3 rounded-xl"><p class="text-[9px] font-bold text-green-600 uppercase">Líquido</p><p class="font-black text-green-700">${f(n(item["Vl. Totalliquido"]))}</p></div>
-                </div>
-            `;
-            document.getElementById('modal-conteudo').innerHTML = conteudo;
-            document.getElementById('modal-detalhes').classList.remove('hidden-page');
-            lucide.createIcons();
-        }
-
-        function fecharModal() { document.getElementById('modal-detalhes').classList.add('hidden-page'); }
-
-        function mudarTab(tab) {
-            const visao = document.getElementById('tab-visao');
-            const lista = document.getElementById('tab-lista');
-            const btnV = document.getElementById('btn-visao');
-            const btnL = document.getElementById('btn-lista');
-            const titulo = document.getElementById('titulo-pagina');
-
-            if(tab === 'visao') {
-                visao.classList.remove('hidden-page'); lista.classList.add('hidden-page');
-                btnV.classList.add('bg-red-900', 'shadow-md'); btnV.classList.remove('opacity-50');
-                btnL.classList.add('opacity-50'); btnL.classList.remove('bg-red-900', 'shadow-md');
-                titulo.innerText = "Visão Geral";
-            } else {
-                lista.classList.remove('hidden-page'); visao.classList.add('hidden-page');
-                btnL.classList.add('bg-red-900', 'shadow-md'); btnL.classList.remove('opacity-50');
-                btnV.classList.add('opacity-50'); btnV.classList.remove('bg-red-900', 'shadow-md');
-                titulo.innerText = "Lista Detalhada";
-            }
-            lucide.createIcons();
-        }
+        lucide.createIcons();
     </script>
 </body>
 </html>
